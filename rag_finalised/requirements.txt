@@ -9,3 +9,5 @@ numpy
 pandas
 openpyxl
 pydantic
+pusher
+python-dotenv

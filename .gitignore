@@ -1,6 +1,17 @@
+# Python backend
 __pycache__/
 *.pyc
-.env
 venv/
-.ipynb_checkpoints
-artifacts/
+rag_finalised/.env
+rag_finalised/.ipynb_checkpoints/
+rag_finalised/artifacts/
+
+# Frontend (Vite React)
+rag_frontend/node_modules/
+rag_frontend/dist/
+rag_frontend/.env
+
+# Editor / tools
+.cursor/
+.DS_Store
+
