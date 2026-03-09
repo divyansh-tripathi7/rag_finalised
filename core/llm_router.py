@@ -1,4 +1,6 @@
-from core.query_expander import tokenizer, model
+# from core.query_expander import tokenizer, model
+
+import core.query_expander as query_expander
 
 def select_experts(query, experts):
 
@@ -29,11 +31,19 @@ CANDIDATES:
 Return the best experts with reasoning.
 """
 
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    # inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    
+    inputs = query_expander.tokenizer(prompt, return_tensors="pt").to(query_expander.model.device)
 
-    outputs = model.generate(
+    # outputs = model.generate(
+    #     **inputs,
+    #     max_new_tokens=200
+    # )
+    
+    outputs = query_expander.model.generate(
         **inputs,
         max_new_tokens=200
-    )
+    )      
 
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # return tokenizer.decode(outputs[0], skip_special_tokens=True)
+    return query_expander.tokenizer.decode(outputs[0], skip_special_tokens=True)

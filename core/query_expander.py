@@ -13,23 +13,43 @@ def load_llm():
 
     tokenizer = AutoTokenizer.from_pretrained(name)
 
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     name,
+    #     torch_dtype=torch.float16,
+    #     device_map="auto"
+    # )
+    
+    device = "mps" if torch.backends.mps.is_available() else "cpu"
+
     model = AutoModelForCausalLM.from_pretrained(
-        name,
-        torch_dtype=torch.float16,
-        device_map="auto"
-    )
+        name
+    ).to(device)
 
 
 def expand_query(query):
 
-    prompt = f"""
-Expand the following user question into technical keywords.
+#     prompt = f"""
+# Expand the following user question into technical keywords.
 
-Question:
+# Question:
+# {query}
+
+# Expanded Query:
+# """
+
+    prompt = f"""
+You are a query expansion engine.
+
+Expand the user query into a list of relevant technical keywords.
+
+Only return keywords.
+
+Query:
 {query}
 
-Expanded Query:
+Keywords:
 """
+
 
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
