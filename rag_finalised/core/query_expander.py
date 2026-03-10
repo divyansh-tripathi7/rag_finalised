@@ -1,6 +1,8 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
+from core.config import is_testing
+
 tokenizer = None
 model = None
 
@@ -8,6 +10,12 @@ model = None
 def load_llm():
 
     global tokenizer, model
+
+    # In testing mode we skip loading the large model entirely.
+    if is_testing():
+        tokenizer = None
+        model = None
+        return
 
     name = "Qwen/Qwen2.5-3B-Instruct"
 
@@ -18,24 +26,21 @@ def load_llm():
     #     torch_dtype=torch.float16,
     #     device_map="auto"
     # )
-    
+
     device = "mps" if torch.backends.mps.is_available() else "cpu"
 
-    model = AutoModelForCausalLM.from_pretrained(
-        name
-    ).to(device)
+    model = AutoModelForCausalLM.from_pretrained(name).to(device)
 
 
 def expand_query(query):
 
-#     prompt = f"""
-# Expand the following user question into technical keywords.
-
-# Question:
-# {query}
-
-# Expanded Query:
-# """
+    # Fast dummy path for testing: no model invocation.
+    if is_testing():
+        base = query.lower().replace("?", "").replace(".", "")
+        words = [w for w in base.split() if w]
+        extra = ["expert", "experience", "skills", "domain", "projects", "research"]
+        keywords = words + extra
+        return "keywords: " + ", ".join(dict.fromkeys(keywords))
 
     prompt = f"""
 You are a query expansion engine.
@@ -50,17 +55,17 @@ Query:
 Keywords:
 """
 
-
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
     outputs = model.generate(
         **inputs,
-        max_new_tokens=120
+        max_new_tokens=120,
     )
 
     text = tokenizer.decode(
         outputs[0],
-        skip_special_tokens=True
+        skip_special_tokens=True,
     )
 
     return text
+

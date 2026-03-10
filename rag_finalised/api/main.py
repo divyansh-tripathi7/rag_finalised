@@ -1,13 +1,28 @@
 import time
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from core.embeddings import load_embedding_model
 from core.hybrid_retriever import load_index, hybrid_search
 from core.query_expander import load_llm, expand_query
 from core.llm_router import select_experts
+from realtime.routes import router as realtime_router
 
 app = FastAPI(title="Expert RAG System")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(realtime_router)
 
 
 class QueryRequest(BaseModel):
